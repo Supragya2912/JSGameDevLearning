@@ -1,3 +1,12 @@
+let playerState = 'roll';
+const dropDown = document.getElementById('animation');
+dropDown.addEventListener('change', (e) => {
+    playerState = e.target.value;
+});
+
+
+
+
 const canvas = document.getElementById('canvas1');
 const ctx = canvas.getContext('2d');
 const CANVAS_WIDTH = canvas.width = 600;
@@ -6,12 +15,66 @@ const CANVAS_HEIGHT = canvas.height = 600;
 const playerImage = new Image();
 playerImage.src = "shadow_dog.png";
 
-const spriteWidth = 575;
+const spriteWidth = 575; 
 const spriteHeight = 523;
-let frameX = 1;
-let frameY = 3;
+
+let gameFrame = 0;
+const staggerFrames = 5;
+const spriteAnimations = [];
+const animationStates = [
+    {
+        name: 'idle',
+        frames: 7,
+    },
+    {
+        name: 'jump',
+        frames: 7,
+    },{
+        name: 'fall',
+        frames: 7,
+    },
+    {
+        name: 'run',
+        frames: 9,
+    },{
+        name: 'dizzy',
+        frames: 11,
+    },
+    {
+        name: 'sit',
+        frames: 5,
+    },
+    {
+        name: 'roll',
+        frames: 7,
+    },
+    {
+        name: 'bite',
+        frames: 7,
+    },
+    {
+        name: 'ko',
+        frames: 12,
+    },
+    {
+        name: 'gethit',
+        frames: 4,
+    }
+];
 
 
+animationStates.forEach((state, index) => {
+    let frames = {
+        loc: []
+    }
+    for(let j = 0; j < state.frames; j++) {
+        frames.loc.push({
+            x: j * spriteWidth,
+            y: index * spriteHeight
+        });
+    }
+    spriteAnimations[state.name] = frames;
+});
 
 function animate() {
 
@@ -19,12 +82,22 @@ function animate() {
     // ctx.drawImage(image, sx, sy, sw ,sh, dx, dy, dw , dh)
     // sx , sy, sw, sh ----> area we want to cut out from the image
     // dx, dy, dw , dh ----> where to place the cut out image on the canvas
-     ctx.drawImage(playerImage, frameX * spriteWidth, frameY * spriteHeight,
+    let position = Math.floor(gameFrame / staggerFrames) % spriteAnimations[playerState].loc.length;
+    let frameX = spriteWidth * position
+    let frameY = spriteAnimations[playerState].loc[position].y;
+
+     ctx.drawImage(playerImage, frameX , frameY,
         spriteWidth, spriteHeight, 0, 0, spriteWidth, spriteHeight);
-        if(frameX < 6) 
-        frameX++;
-        else 
-        frameX = 0;
+
+        // if(gameFrame % staggerFrames == 0)
+        // {
+        //     if(frameX < 6) 
+        //   frameX++;
+        //    else 
+        //    frameX = 0;
+        // }
+
+        gameFrame++;
         requestAnimationFrame(animate);
 
 };
